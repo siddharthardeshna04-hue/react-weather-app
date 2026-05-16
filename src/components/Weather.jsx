@@ -10,17 +10,19 @@ import windIcon from "../assets/wind.png";
 import humidityIcon from "../assets/humidity.png";
 
 const Weather = () => {
-  /*const [weatherData, setWeatherdata] = useState({});*/
-  const inputRef = useRef()
+  const inputRef = useRef();
   const [weatherData, setWeatherdata] = useState({
-  humidity: "",
-  windspeed: "",
-  temperature: "",
-  location: "",
-  icon: clearIcon,
-});
+    humidity: "",
+    windspeed: "",
+    temperature: "",
+    location: "",
+    icon: clearIcon,
+  });
 
-
+  // 1. Add state for Dark Mode (reads initial value from localStorage)
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
 
   const allicons = {
     "01d": clearIcon,
@@ -40,18 +42,17 @@ const Weather = () => {
   };
 
   const search = async (city) => {
-    if(city===""){
+    if (city === "") {
       alert("Please enter a city name");
       return;
-    } 
+    }
     try {
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${import.meta.env.VITE_APP_ID}`;
-
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${import.meta.env.VITE_APP_ID}`;
 
       const response = await fetch(url);
       const data = await response.json();
 
-      if(!response.ok){
+      if (!response.ok) {
         alert("City not found");
         return;
       }
@@ -64,7 +65,7 @@ const Weather = () => {
         windspeed: data.wind.speed,
         temperature: Math.floor(data.main.temp),
         location: data.name,
-        icon: icon
+        icon: icon,
       });
       localStorage.setItem("lastCity", data.name);
     } catch (error) {
@@ -73,8 +74,17 @@ const Weather = () => {
     }
   };
 
+  // 2. Function to toggle dark mode state and save preference
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => {
+      const nextMode = !prev;
+      localStorage.setItem("theme", nextMode ? "dark" : "light");
+      return nextMode;
+    });
+  };
+
   useEffect(() => {
-   const savedCity = localStorage.getItem("lastCity");
+    const savedCity = localStorage.getItem("lastCity");
 
     if (savedCity) {
       search(savedCity);
@@ -88,32 +98,43 @@ const Weather = () => {
   }, []);
 
   return (
-    <div className="weather">
+    // 3. Dynamically apply the "dark" class if isDarkMode is true
+    <div className={`weather ${isDarkMode ? "dark" : ""}`}>
+      
+      {/* 4. Theme Toggle Button at the top */}
+      <div className="theme-toggle" onClick={toggleDarkMode}>
+        {isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+      </div>
+
       <div className="search-bar">
         <input ref={inputRef} type="text" placeholder="search city" />
-        <img src={searchIcon} alt="" onClick={()=>search(inputRef.current.value)}/>
+        <img src={searchIcon} alt="" onClick={() => search(inputRef.current.value)} />
       </div>
-      {weatherData?<>
-      <img src={weatherData.icon} alt="" className="weathericon" />
-      <p className="temperature">{weatherData.temperature}°c</p>
-      <p className="location">{weatherData.location}</p>
-      <div className="weather-data">
-        <div className="data">
-          <img src={humidityIcon} alt="" />
-          <div>
-            <p>{weatherData.humidity}%</p>
-            <span>Humidity</span>
+      {weatherData ? (
+        <>
+          <img src={weatherData.icon} alt="" className="weathericon" />
+          <p className="temperature">{weatherData.temperature}°c</p>
+          <p className="location">{weatherData.location}</p>
+          <div className="weather-data">
+            <div className="data">
+              <img src={humidityIcon} alt="" />
+              <div>
+                <p>{weatherData.humidity}%</p>
+                <span>Humidity</span>
+              </div>
+            </div>
+            <div className="data">
+              <img src={windIcon} alt="" />
+              <div>
+                <p>{weatherData.windspeed}Km/hr</p>
+                <span>wind speed</span>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="data">
-          <img src={windIcon} alt="" />
-          <div>
-            <p>{weatherData.windspeed}Km/hr</p>
-            <span>wind speed</span>
-          </div>
-        </div>
-      </div>
-      </>:<></>}
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

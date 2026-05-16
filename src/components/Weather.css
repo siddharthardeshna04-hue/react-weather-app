@@ -67,3 +67,40 @@
     font-size: 16px;
     display: block;
 }
+
+/* --- Dark Mode Styles --- */
+.theme-toggle {
+  align-self: flex-end;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-bottom: 15px;
+  transition: 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* When the .weather div has the .dark class, override background colors */
+.weather.dark {
+  background: linear-gradient(45deg, #232526, #414345); /* Dark slate gray look */
+  color: #f5f5f5;
+}
+
+.weather.dark .search-bar input {
+  background: #2b2d2f;
+  color: #ffffff;
+}
+
+.weather.dark .weather-data {
+  color: #ffffff;
+}
+
+.weather.dark .weather-data span {
+  color: #b3b3b3;
+}
